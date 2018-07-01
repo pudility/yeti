@@ -3,7 +3,10 @@ cmake_minimum_required (VERSION 2.6)
 project (LLVM-Handbook)
 
 # support cpp 11
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wno-register")
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wno-register -stdlib=libc++")
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+set(CMAKE_BUILD_TYPE Debug) # we will want to remove this later but for now it is ok
 
 # LLVM stuff
 find_package(LLVM PATHS "${LLVM_ROOT}/lib/cmake/llvm" "$ENV{ProgramFiles}/lib/cmake/llvm")
@@ -34,6 +37,7 @@ set(SOURCES
   ast/ast.cpp
   ast/Number/ast.cpp
   ast/BinOp/ast.cpp
+  ast/Functions/ast.cpp
 
   # Parser / Lexer
   lexer/tokens.l
@@ -48,6 +52,7 @@ set(HEADERS
   ast/ast.h
   ast/Number/ast.h
   ast/BinOp/ast.h
+  ast/Functions/ast.h
 )
 
 

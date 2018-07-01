@@ -39,15 +39,23 @@ ID       [a-z][a-z0-9]*
   SAVE_TOKEN; return TCLOSEPAREN;
 }
 
-if|then|begin|end|procedure|function        {
-            printf( "A keyword: %s\n", yytext );
-            }
+"func" {
+  SAVE_TOKEN; return TFUNC;
+}
 
-{ID}        SAVE_TOKEN; return TIDENTIFIER; // printf( "An identifier: %s\n", yytext );
+"{" {
+  SAVE_TOKEN; return TOPENBRACE;
+}
+
+"}" {
+  SAVE_TOKEN; return TCLOSEBRACE;
+}
 
 "+"|"-"|"*"|"/" {
   SAVE_TOKEN; return TBINOP;
 } 
+
+{ID}        SAVE_TOKEN; return TIDENTIFIER; // printf( "An identifier: %s\n", yytext );
 
 #.* {/* one-line comment */}
 

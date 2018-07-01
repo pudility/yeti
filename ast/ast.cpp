@@ -16,7 +16,10 @@ Value *BlockAST::codeGen() {
 std::string BlockAST::out () {
 	std::string outString;
   llvm::raw_string_ostream rso(outString);
-  this->codeGen()->print(rso);
+  for (auto e: statements) {
+    e->codeGen()->print(rso);
+    outString += "\n";
+  }
   
   return outString;
 }
