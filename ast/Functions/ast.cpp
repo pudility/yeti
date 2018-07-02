@@ -1,6 +1,8 @@
 #include <type_traits>
+#include <iostream>
 
 #include "ast.h"
+#include "../../globals.h"
 
 #include "llvm/IR/Constants.h"
 #include "llvm/Support/raw_ostream.h"
@@ -13,6 +15,7 @@ Value *FunctionAST::codeGen() {
 
 	FunctionType *FT = FunctionType::get(returnType, argTypes, false);
 	Function *func = Function::Create(FT, Function::ExternalLinkage, name, mModule.get());
+  currentFunc = func;
 
   auto i = 0;
   for (auto &a: func->args()) {
@@ -42,4 +45,19 @@ Value *FunctionAST::codeGen() {
 
 std::string FunctionAST::out() {
   return std::string("Not Implemented");
+}
+
+Value *PrototypeAST::codeGen() {
+	FunctionType *FT = FunctionType::get(returnType, argTypes, false);
+	Function *func = Function::Create(FT, Function::ExternalLinkage, name, mModule.get());
+  currentFunc = func;  
+  return func;
+}
+
+std::string PrototypeAST::out() {
+  std::string outString;
+  llvm::raw_string_ostream rso(outString);
+  this->codeGen()->print(rso);
+  
+  return outString;
 }

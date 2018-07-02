@@ -20,3 +20,17 @@ class FunctionAST: public AST {
     Value *codeGen() override;
     std::string out() override;
 };
+
+class PrototypeAST: public AST {
+  Type *returnType;
+  std::vector<Type *> argTypes;
+  std::string name;
+  public:
+    PrototypeAST (
+      std::string name,
+      std::vector<Type *>  argTypes,
+      Type *returnType
+    ): name(name), argTypes(argTypes), returnType(returnType) { }
+    Value *codeGen() override;
+    std::string out() override;
+};

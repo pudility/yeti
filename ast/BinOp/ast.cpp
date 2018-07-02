@@ -7,6 +7,9 @@
 
 using namespace llvm;
 
+extern LLVMContext mContext;
+extern IRBuilder<> mBuilder;
+
 Value *BinOpAST::codeGen() {
   auto *left = L->codeGen();
   auto *right = R->codeGen();

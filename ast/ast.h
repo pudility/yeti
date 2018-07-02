@@ -8,11 +8,6 @@
 
 using namespace llvm;
 
-// Global variables for use throughout all ASTs
-static LLVMContext mContext;
-static IRBuilder<> mBuilder(mContext);
-static std::unique_ptr<Module> mModule = llvm::make_unique<Module>("foo", mContext);
-
 class AST {
   public:
     virtual ~AST() { }
@@ -28,6 +23,15 @@ class BlockAST: public AST {
       statements.clear();
     }
 
+    Value *codeGen() override;
+    std::string out() override;
+};
+
+class WrapperAST: public AST {
+  Value *val;
+
+  public:
+    WrapperAST(Value *val): val(val) { }
     Value *codeGen() override;
     std::string out() override;
 };

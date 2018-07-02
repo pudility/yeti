@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "ast.h"
+
 #include "llvm/Support/raw_ostream.h"
 
 using namespace llvm;
@@ -20,6 +21,18 @@ std::string BlockAST::out () {
     e->codeGen()->print(rso);
     outString += "\n";
   }
+  
+  return outString;
+}
+
+Value *WrapperAST::codeGen() {
+  return val;
+}
+
+std::string WrapperAST::out() {
+	std::string outString;
+  llvm::raw_string_ostream rso(outString);
+  this->codeGen()->print(rso);
   
   return outString;
 }

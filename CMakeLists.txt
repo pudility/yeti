@@ -34,10 +34,12 @@ llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES mcjit interpreter native ipo)
 set(SOURCES
   # cpp
   main.cpp
+  globals.cpp
   ast/ast.cpp
   ast/Number/ast.cpp
   ast/BinOp/ast.cpp
   ast/Functions/ast.cpp
+  ast/Variables/ast.cpp
 
   # Parser / Lexer
   lexer/tokens.l
@@ -48,11 +50,13 @@ set(SOURCES
 
 set(HEADERS
   main.h  
+  globals.h
 
   ast/ast.h
   ast/Number/ast.h
   ast/BinOp/ast.h
   ast/Functions/ast.h
+  ast/Variables/ast.h
 )
 
 
@@ -93,7 +97,7 @@ ADD_CUSTOM_COMMAND(
 
 # parser isnt generated so we need to set its property
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_BINARY_DIR}/parser.cpp GENERATED)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR})
 
 
 # versions

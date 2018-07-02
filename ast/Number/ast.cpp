@@ -1,11 +1,14 @@
 #include <type_traits>
 
 #include "ast.h"
+#include "../../globals.h"
 
 #include "llvm/IR/Constants.h"
 #include "llvm/Support/raw_ostream.h"
 
 using namespace llvm;
+
+extern LLVMContext mContext;
 
 Value *NumberAST::codeGen() {
   // if constexpr (std::is_same<T, float> || std::is_same<T, double>)

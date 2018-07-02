@@ -39,8 +39,24 @@ ID       [a-z][a-z0-9]*
   SAVE_TOKEN; return TCLOSEPAREN;
 }
 
+"->" {
+  SAVE_TOKEN; return TCAST;
+}
+
 "func" {
   SAVE_TOKEN; return TFUNC;
+}
+
+"var" {
+  SAVE_TOKEN; return TVAR;
+}
+
+"Double" {
+  SAVE_TOKEN; return TWDOUBLE;
+}
+
+"Int" {
+  SAVE_TOKEN; return TWINT;
 }
 
 "{" {
