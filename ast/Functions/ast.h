@@ -34,3 +34,13 @@ class PrototypeAST: public AST {
     Value *codeGen() override;
     std::string out() override;
 };
+
+class CallAST: public AST {
+  std::string name;
+  std::vector<AST *> args;
+
+  public:
+    CallAST(std::string name, std::vector<AST *> args): name(name), args(args) { }
+    Value *codeGen() override;
+    std::string out() override;
+};

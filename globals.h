@@ -13,6 +13,8 @@ extern std::unique_ptr<Module> mModule;
 extern std::map<std::string, AllocaInst *> namedVariables;
 extern Function *currentFunc;
 
+extern AllocaInst *CreateBlockAlloca(Function *func, std::string name, Type* type);
+
 // types
 extern Type *i32;
 extern Type *pi32;
@@ -20,3 +22,7 @@ extern Type *i8;
 extern Type *pi8;
 extern Type *dType;
 extern Type *pdType;
+
+// ARC (gc/prelex)
+extern std::string ARCCurrentFunc;
+extern std::map<std::string, std::map<std::string, int>> ARC;

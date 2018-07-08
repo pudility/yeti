@@ -10,11 +10,6 @@
 
 using namespace llvm;
 
-static AllocaInst *CreateBlockAlloca(Function *func, std::string name, Type* type) {
-  IRBuilder<> tmpBuilder(&func->getEntryBlock(), func->getEntryBlock().begin());
-  return tmpBuilder.CreateAlloca(type, nullptr, name);
-}
-
 Value *VariableAST::codeGen() {
   Function *func = currentFunc; // insert point for alloca
 
@@ -29,9 +24,33 @@ Value *VariableAST::codeGen() {
   return alloca;
 }
 
+Value *VariableSetAST::codeGen() {
+  Value *loadAlloca = mBuilder.CreateLoad(namedVariables[name]);
+  Value *newValue = newVal->codeGen();
+
+  mBuilder.CreateStore(newValue, loadAlloca);
+  return newValue;
+}
+
+Value *VariableGetAST::codeGen() {
+  Value *loadAlloca = mBuilder.CreateLoad(namedVariables[name]);
+  Value *retValue = mBuilder.CreateLoad(loadAlloca);
+
+  if (ARC[ARCCurrentFunc][name] < 0) { // if we arent going to use the variable again, free it
+    Instruction *castInst = new BitCastInst (loadAlloca, pi8);
+    mBuilder.Insert(castInst);
+
+    Function *freeCall = mModule->getFunction("free");
+    std::vector<Value *> freeArgs = { castInst };
+    mBuilder.CreateCall(freeCall, freeArgs);
+  } else ARC[ARCCurrentFunc][name]--;
+
+  return retValue;
+}
+
 Value *CastAST::codeGen() {
   Value *loadAlloca = mBuilder.CreateLoad(namedVariables[name]);
-  Instruction *castInst = new BitCastInst (loadAlloca, to);
+  Instruction *castInst = new BitCastInst (loadAlloca, PointerType::getUnqual(to));
   mBuilder.Insert(castInst);
 
   AllocaInst *alloca = CreateBlockAlloca(currentFunc, name, castInst->getType());
@@ -45,5 +64,13 @@ std::string CastAST::out() {
 }
 
 std::string VariableAST::out() {
+  return std::string("Not Implemented");
+}
+
+std::string VariableSetAST::out() {
+  return std::string("Not Implemented");
+}
+
+std::string VariableGetAST::out() {
   return std::string("Not Implemented");
 }

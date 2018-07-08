@@ -46,6 +46,12 @@ set(SOURCES
   parser/parser.y
   ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/tokens.cpp
+
+  # PRE Parser / Lexer
+  pre/lexer/tokens.l
+  pre/parser/parser.y
+  ${CMAKE_CURRENT_BINARY_DIR}/preparser.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/pretokens.cpp
 )
 
 set(HEADERS
@@ -70,6 +76,7 @@ ADD_CUSTOM_TARGET(Parser echo "Creating parser")
 # FLEX_TARGET(MyScanner ${CMAKE_CURRENT_SOURCE_DIR}/lexer/tokens.l ${CMAKE_CURRENT_BINARY_DIR}/tokens.cpp)
 # ADD_FLEX_BISON_DEPENDENCY(MyScanner MyParser)
 
+# lexer
 ADD_CUSTOM_COMMAND(
   SOURCE  ${CMAKE_CURRENT_SOURCE_DIR}/lexer/tokens.l
   COMMAND ${FLEX_EXECUTABLE}
@@ -79,6 +86,18 @@ ADD_CUSTOM_COMMAND(
   OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/tokens.cpp
 )
 
+# pre lexer
+ADD_CUSTOM_COMMAND(
+  SOURCE  ${CMAKE_CURRENT_SOURCE_DIR}/pre/lexer/tokens.l
+  COMMAND ${FLEX_EXECUTABLE}
+  ARGS -o ${CMAKE_CURRENT_BINARY_DIR}/pretokens.cpp
+       -P zz # prefix zz to differentiate
+          ${PROJECT_SOURCE_DIR}/pre/lexer/tokens.l 
+  TARGET  PreParser
+  OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/pretokens.cpp
+)
+
+# parser
 ADD_CUSTOM_COMMAND(
   SOURCE  ${CMAKE_CURRENT_SOURCE_DIR}/parser/parser.y
   COMMAND ${BISON_EXECUTABLE}
@@ -88,6 +107,19 @@ ADD_CUSTOM_COMMAND(
   TARGET Parser
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/tokens.cpp
   OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
+)
+
+# pre parser
+ADD_CUSTOM_COMMAND(
+  SOURCE  ${CMAKE_CURRENT_SOURCE_DIR}/pre/parser/parser.y
+  COMMAND ${BISON_EXECUTABLE}
+  ARGS -y ${CMAKE_CURRENT_SOURCE_DIR}/pre/parser/parser.y
+       -p zz # prefix zz to differentiate
+       -o ${CMAKE_CURRENT_BINARY_DIR}/preparser.cpp
+       --defines=preparser.h
+  TARGET PreParser
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/pretokens.cpp
+  OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/preparser.cpp
 )
 
 

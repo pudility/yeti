@@ -6,15 +6,15 @@
 #include <unistd.h>
 #include <string>
 #include <iostream>
-#include "parser.h"
+#include "preparser.h"
 
 #include "../ast/Number/ast.h"
 
-extern "C" int yywrap() { return 1; }
-extern "C" void yyerror (const char *error) { std::cerr << error << std::endl; }
+extern "C" int zzwrap() { return 1; }
+extern "C" void zzerror (const char *error) { std::cerr << error << std::endl; }
 
-#define SAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
-#define TOKEN(t) (yylval.token = t)
+#define SAVE_TOKEN zzlval.string = new std::string(zztext, zzleng)
+#define TOKEN(t) (zzlval.token = t)
 
 %}
 

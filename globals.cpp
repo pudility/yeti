@@ -19,3 +19,8 @@ Type *i8 = IntegerType::get(mContext, 8);
 Type *pi8 = PointerType::getUnqual(i8);
 Type *dType = Type::getDoubleTy(mContext);
 Type *pdType = PointerType::getUnqual(dType);
+
+AllocaInst *CreateBlockAlloca(Function *func, std::string name, Type* type) {
+  IRBuilder<> tmpBuilder(&func->getEntryBlock(), func->getEntryBlock().begin());
+  return tmpBuilder.CreateAlloca(type, nullptr, name);
+}

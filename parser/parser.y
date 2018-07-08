@@ -43,16 +43,20 @@ BlockAST *res;
   AST *any;
   FunctionAST *func;
   std::vector<std::pair<std::string, llvm::Type *>> *args;
+  std::vector<Type *> *typeArgs;
+  std::vector<AST *> *valueArgs;
   llvm::Type *type;
 }
 
-%token <string> TIDENTIFIER TINT TBINOP TOPENPAREN TCLOSEPAREN TOPENBRACE TCLOSEBRACE TFUNC TVAR TCAST TWDOUBLE TWINT
+%token <string> TIDENTIFIER TINT TBINOP TOPENPAREN TCLOSEPAREN TOPENBRACE TCLOSEBRACE TFUNC TVAR TCAST TWDOUBLE TWINT TEQUALS TEXTERN
 %token <args> arg
 
-%type <any> constExpr func var cast
+%type <any> constExpr func var cast extern call
 %type <base> program statments 
 %type <args> funcArgs
+%type <typeArgs> typeArgs
 %type <type> type
+%type <valueArgs> valueArgs
 
 %start program
 
@@ -67,12 +71,19 @@ BlockAST *res;
             | func { $$ = $<any>1; }
             | var { $$ = $<any>1; }
             | cast { $$ = $<any>1; }
-            | TIDENTIFIER { std::cout << *$1; } // dont use this
+            | extern { $$ = $<any>1; }
+            | call { $$ = $<any>1; }
+            | TIDENTIFIER { $$ = new VariableGetAST(*$<string>1); } 
             | constExpr TBINOP constExpr { $$ = new BinOpAST($1, $3, $2->c_str()[0]); }
+            | TIDENTIFIER TEQUALS constExpr { $$ = new VariableSetAST(*$<string>1, $<any>3); }
             | TOPENPAREN constExpr TCLOSEPAREN { $$ = $2; }
           ;
   var       : TVAR TIDENTIFIER TOPENPAREN TINT TCLOSEPAREN {
     $$ = new VariableAST(*$2, std::stoi(*$4));
+  }
+          ;
+  call      : TIDENTIFIER TOPENPAREN valueArgs TCLOSEPAREN {
+    $$ = new CallAST(*$<string>1, *$<valueArgs>3);
   }
           ;
   func      : TFUNC TIDENTIFIER TOPENPAREN funcArgs TCLOSEPAREN TOPENBRACE statments TCLOSEBRACE {
@@ -83,16 +94,33 @@ BlockAST *res;
     auto tmpArgs = std::vector<std::pair<std::string, llvm::Type *>>();
     $$ = &tmpArgs;
   }
-            | TIDENTIFIER { 
-    auto tmpArgs = std::vector<std::pair<std::string, llvm::Type *>>();
-    tmpArgs.push_back(std::make_pair(*$<string>1, IntegerType::get(mContext, 32)));
+            | funcArgs type TIDENTIFIER { 
+    $1->push_back(std::make_pair(*$<string>3, $<type>2)); 
+  }
+          ;
+  typeArgs  : { 
+    auto tmpArgs = std::vector<Type *>();
     $$ = &tmpArgs;
   }
-            | funcArgs TIDENTIFIER { $1->push_back(std::make_pair(*$<string>2, IntegerType::get(mContext, 32))); }
+            | typeArgs type { 
+              $1->push_back($<type>2); 
+            }
+          ;
+  valueArgs  : { 
+    auto tmpArgs = std::vector<AST *>();
+    $$ = &tmpArgs;
+  }
+            | valueArgs constExpr { 
+              $1->push_back($<any>2); 
+            }
           ;
   cast      : TIDENTIFIER TCAST type { $$ = new CastAST(*$<string>1, $<type>3); }
           ;
-  type    : TWDOUBLE { $$ = pdType; }
-          | TWINT { $$ = pi32; }
-        ;
+  type      : TWDOUBLE { $$ = dType; }
+            | TWINT { $$ = i32; }
+          ;
+  extern    : TEXTERN TIDENTIFIER TOPENPAREN typeArgs TCLOSEPAREN TCAST type { 
+    $$ = new PrototypeAST(*$<string>2, *$<typeArgs>4, $<type>7);
+  }
+          ;
 %%

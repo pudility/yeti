@@ -24,6 +24,8 @@ Value *BinOpAST::codeGen() {
       return mBuilder.CreateMul(left, right, "multmp");
     case '/':
       return mBuilder.CreateSDiv(left, right, "divtmp");
+    case '=':
+      return mBuilder.CreateStore(right, left);
     default:
       return ConstantInt::get(mContext, APInt(32, 0));
   }

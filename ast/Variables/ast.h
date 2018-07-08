@@ -19,6 +19,30 @@ class VariableAST: public AST {
     std::string out() override;
 };
 
+class VariableSetAST: public AST {
+  std::string name;
+  AST *newVal;
+
+  public:
+    VariableSetAST(
+      std::string name,
+      AST *newVal
+    ): name(name), newVal(newVal) { }
+    Value *codeGen() override;
+    std::string out() override;
+};
+
+class VariableGetAST: public AST {
+  std::string name;
+
+  public:
+    VariableGetAST(
+      std::string name
+    ): name(name) { }
+    Value *codeGen() override;
+    std::string out() override;
+};
+
 class CastAST: public AST {
   std::string name;
   Type *to;
