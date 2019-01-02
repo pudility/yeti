@@ -32,9 +32,13 @@ Value *VariableSetAST::codeGen() {
   return newValue;
 }
 
+Value *PointerSetAST::codeGen() {
+  return mBuilder.CreateStore(newVal->codeGen(), ptr->codeGen());
+}
+
 Value *VariableGetAST::codeGen() {
   Value *loadAlloca = mBuilder.CreateLoad(namedVariables[name]);
-  Value *retValue = mBuilder.CreateLoad(loadAlloca);
+  Value *retValue = getPointer ? loadAlloca : mBuilder.CreateLoad(loadAlloca);
 
   if (ARC[ARCCurrentFunc][name] < 0) { // if we arent going to use the variable again, free it
     Instruction *castInst = new BitCastInst (loadAlloca, pi8);
@@ -59,7 +63,19 @@ Value *CastAST::codeGen() {
   return castInst;
 }
 
+Value *ArrayGetAST::codeGen() {
+  return mBuilder.CreateGEP(arrayPtr->codeGen(), index->codeGen());
+}
+
+Value *LoadVariableAST::codeGen() {
+  return mBuilder.CreateLoad(ptr->codeGen());
+}
+
 std::string CastAST::out() {
+  return std::string("Not Implemented");
+}
+
+std::string LoadVariableAST::out() {
   return std::string("Not Implemented");
 }
 
@@ -72,5 +88,13 @@ std::string VariableSetAST::out() {
 }
 
 std::string VariableGetAST::out() {
+  return std::string("Not Implemented");
+}
+
+std::string ArrayGetAST::out() {
+  return std::string("Not Implemented");
+}
+
+std::string PointerSetAST::out() {
   return std::string("Not Implemented");
 }

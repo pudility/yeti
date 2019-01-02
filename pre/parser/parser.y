@@ -38,7 +38,7 @@ std::string ARCCurrentFunc;
   int number;
 }
 
-%token <string> TIDENTIFIER TINT TBINOP TOPENPAREN TCLOSEPAREN TOPENBRACE TCLOSEBRACE TFUNC TVAR TCAST TWDOUBLE TWINT TEQUALS TEXTERN
+%token <string> TIDENTIFIER TINT TBINOP TOPENPAREN TCLOSEPAREN TOPENBRACE TCLOSEBRACE TFUNC TVAR TCAST TWDOUBLE TWINT TEQUALS TEXTERN TOPENBRACKET TCLOSEBRACKET TSTAR
 
 %type <number> constExpr cast extern call program statments 
 %type <string> func var 
@@ -64,6 +64,9 @@ std::string ARCCurrentFunc;
             | TOPENPAREN constExpr TCLOSEPAREN { }
             | TINT
             | TBINOP
+            | TOPENBRACKET
+            | TCLOSEBRACKET
+            | TSTAR
            // | TOPENPAREN
            // | TCLOSEPAREN
            // | TEQUALS

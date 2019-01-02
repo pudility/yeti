@@ -48,10 +48,10 @@ BlockAST *res;
   llvm::Type *type;
 }
 
-%token <string> TIDENTIFIER TINT TBINOP TOPENPAREN TCLOSEPAREN TOPENBRACE TCLOSEBRACE TFUNC TVAR TCAST TWDOUBLE TWINT TEQUALS TEXTERN
+%token <string> TIDENTIFIER TINT TBINOP TOPENPAREN TCLOSEPAREN TOPENBRACE TCLOSEBRACE TFUNC TVAR TCAST TWDOUBLE TWINT TEQUALS TEXTERN TAND TOPENBRACKET TCLOSEBRACKET TSTAR
 %token <args> arg
 
-%type <any> constExpr func var cast extern call
+%type <any> constExpr func var cast extern call array
 %type <base> program statments 
 %type <args> funcArgs
 %type <typeArgs> typeArgs
@@ -74,13 +74,21 @@ BlockAST *res;
             | extern { $$ = $<any>1; }
             | call { $$ = $<any>1; }
             | TIDENTIFIER { $$ = new VariableGetAST(*$<string>1); } 
+            | array { $$ = $<any>1; }
             | constExpr TBINOP constExpr { $$ = new BinOpAST($1, $3, $2->c_str()[0]); }
             | TIDENTIFIER TEQUALS constExpr { $$ = new VariableSetAST(*$<string>1, $<any>3); }
+            | constExpr TEQUALS constExpr { $$ = new PointerSetAST($<any>1, $<any>3); }
+            | TBINOP constExpr { $$ = new LoadVariableAST($<any>2); }
             | TOPENPAREN constExpr TCLOSEPAREN { $$ = $2; }
           ;
   var       : TVAR TIDENTIFIER TOPENPAREN TINT TCLOSEPAREN {
     $$ = new VariableAST(*$2, std::stoi(*$4));
   }
+          ;
+  array     : TIDENTIFIER TOPENBRACKET constExpr TCLOSEBRACKET { 
+    auto *varPointer = new VariableGetAST(*$<string>1); 
+    $$ = new ArrayGetAST(varPointer, $<any>3);
+  } 
           ;
   call      : TIDENTIFIER TOPENPAREN valueArgs TCLOSEPAREN {
     $$ = new CallAST(*$<string>1, *$<valueArgs>3);
@@ -118,6 +126,7 @@ BlockAST *res;
           ;
   type      : TWDOUBLE { $$ = dType; }
             | TWINT { $$ = i32; }
+            | TOPENBRACKET type TCLOSEBRACKET { $$ = PointerType::getUnqual($<type>2); }
           ;
   extern    : TEXTERN TIDENTIFIER TOPENPAREN typeArgs TCLOSEPAREN TCAST type { 
     $$ = new PrototypeAST(*$<string>2, *$<typeArgs>4, $<type>7);
